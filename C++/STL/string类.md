@@ -1,0 +1,139 @@
+1. string类对象的常见构造
+
+| (constructor)函数名称| 功能说明 |
+| --- |---|
+|string() (重点) |构造空的string类对象,即空字符串|
+|string(const char* s) (重点)| 用C-string来构造string类对象|
+|string(size_t n, char c) | string类对象中包含n个字符c|
+|string(const string& s)| 拷贝构造函数|
+```c++
+void Teststring()
+{
+    string s1;                 //构造空的string类对象s1
+    string s2("hello world");  //用C格式字符串构造string类对象s2
+    string s3(s2);             //拷贝构造s3
+}
+```
+```c++
+推荐使用+=
+int main()
+{
+    string s("123456");
+    s.push_back('7');       //push_back只能在末尾加一个字符
+    s.append("89");         //append只能在末尾加一串字符串
+    s += '1';               //+=不仅可以在末尾加字符,而且可以加字符串
+    s += "00000";
+    cout << s << endl;      //123456789100000
+    return 0;
+}
+```
+2. string类对象的容量操作
+
+|函数名称|功能说明|
+|---|---|
+|size (重点)|返回字符串有效字符长度|
+|length|返回字符串有效字符长度|
+|capacity|返回空间总大小|
+|empty (重点)|检测字符串释放为空集,是则返回true,否则返回false|
+|clear (重点)|清空有效字符|
+--------------------------------------------------------
+3. 迭代器
+#### 
+    迭代器（iterator）是一种可以遍历容器元素的数据类型。
+    迭代器是一个变量，相当于容器和操纵容器的算法之间的中介。
+    C++更趋向于使用迭代器而不是数组下标操作，
+    因为标准库为每一种标准容器（如vector、map和list等）定义了一种迭代器类型，而只有少数容器（如vector）支持数组下标操作访问容器元素。
+    可以通过迭代器指向你想访问容器的元素地址，通过*it打印出元素值。
+    这和我们所熟知的指针极其类似。
+    容器都有成员begin和end，其中begin成员复制返回指向第一个元素的迭代器（用*迭代器打印出元素值），
+    而end成员返回指向容器尾元素的下一个位置的迭代器，它是一个不存在的元素位置
+|迭代器名称|功能说明|
+|--|--|
+|string::iteraotor|正向迭代器,正序读写数据|
+|string::const_iterator|常量正向迭代器,正序只读数据|
+|string::reverse_iterator|反向迭代器,逆序读写数据|
+|string::const_reverse_iterator|常量反向迭代器|
+```c++
+#include<iostream>
+#include<string>
+int main()
+{
+    string s1("hello world");
+    string::iterator it = s1.begin();//迭代器
+    while(it != s1.end())
+    {
+        cout << *it " ";
+        ++it;
+    }
+    cout << endl;
+}
+//s1.begin()获得字符串开始的位置,用迭代器创建一个it,类似于指针指向每个元素
+//迭代器遍历完字符串后的位置不会变,会指向最后一个元素的后一个元素
+//s1.end()是最后一个字符的下一个位置
+//迭代器不仅可以读数据,也可以写
+```
+#### c_str
+    返回值:const char*
+    获取字符串首地址,用c字符串的形式遍历
+```c++
+const char* str = s1.c_str();
+while(*str)
+{
+    cout << *str << " ";
+    ++str;
+}
+cout <<　endl;      //调用的string重载的operator<<      将对象中的所有字符都输出
+cout << s1.c_str() << endl;//直接输出const char*        遇到\0就结束
+```
+#### find()
+    从某个位置开始查找指定的字符
+    查找失败返回string::npos
+    成功找到就返回所求字符的所在位置的下标
+```c++
+string s1(string.txt);
+size_t pos1 = s1.find('.');
+if(pos1 != string::npos)
+{
+    cout << s1.substr(pos1) << endl;
+}
+npos是string里面的静态成员变量
+如果substr只有一个传参,则默认从0开始查找
+如果有两个参数,如: substr(2,4); 则从下标2查到下标4
+```
+### std::getline(string)
+    可以输入带空格的字符串
+```c++
+1. istream& getline (istream& is, string& str, char delim);
+2. istream& getline(istream& is, string& str);
+```
+```c++
+示范
+string s;
+getline(cin,s);
+```
+#### string类的构造函数
+    无参的构造函数一般都是默认传"",也就是没有有效字符,只有一个'\0'
+    不可以给缺省值为nullptr
+
+#### 深浅拷贝
+    当我们没有编写拷贝构造函数时,编译器会给出默认构造函数,我们称这种拷贝为浅拷贝
+    浅拷贝在拷贝对象时,会一个字节一个字节的单独拷贝
+    这种拷贝在某种情况下可行,在需要拷贝指针的情况下时不行
+    ->拷贝出两个指针指向同一个块空间,使得同一块空间被释放两次
+
+####
+    string类中存在capacity和size
+    其中size->已经有多少个有效字符
+    capacity->能存多少有效字符
+    \0不是有效字符
+
+#### 模拟实现一个string类
+    string类想要支持增删查改,就需要在堆区储存数据.
+    所以会将输入到栈区的数据拷贝到堆区,处理数据
+    堆区扩容时不能2倍去增,因为不一定够
+    使用in.get()可以在控制台获得输入的字符串之间的空格
+    ch = in.get();
+
+    ::swap();
+    域作用限定符, 左边为空, 表示调用全局的
+    在类的成员对象和成员方法前面都会默认加上this

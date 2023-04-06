@@ -1,0 +1,71 @@
+#include <stdio.h>
+#include <easyx.h>//包含图形库头文件,（安装好vs2022以后，需要去官网下载头文件）
+#include <conio.h>//使用 _getch()
+
+int main() 
+{
+	//——框体初始化——
+	//创建一个窗口，确定窗口的大小  //EM_SHOWCONSOLE	
+	// 创建图形窗口时，保留控制台的显示// EM_NOCLOSE
+	
+	initgraph(640, 480, EW_SHOWCONSOLE);
+
+	//设置背景颜色
+	setbkcolor(WHITE);	// one
+	cleardevice();//清屏   two		
+
+	//——画圆操作——
+	setlinestyle(PS_SOLID, 5);//设置线条样式  //(高度，宽度，字体)
+
+	setfillcolor(YELLOW);//设置填充颜色	（圆内的填充颜色）
+	setlinecolor(BLUE);//设置线条颜色  （圆的边框线条颜色）		
+
+	circle(100, 100, 50);//画圆 无填充  （圆心x坐标，圆心y的坐标，半径）		
+	fillcircle(200, 100, 50);//有边框填充		
+	solidcircle(300, 100, 50);//无边框填充
+
+	//↑在框体中打印出三个圆形：蓝色边框无填充圆，蓝色边框黄色填充圆，无边框黄色填充圆
+
+
+	//——绘制文字——
+	settextcolor(RED);//设置文字颜色		
+	settextstyle(30, 0, "楷体");//设置文字样式、大小、字体	
+
+	setbkmode(TRANSPARENT);//设置背景模式	（使其透明展示）
+	outtextxy(50, 200, "姜清锋");
+
+	//错误(活动)	E0304	没有与参数列表匹配的 重载函数 "outtextxy" 实例	easyx基础		
+	//解决方案	
+	//1.字符串前面加L——,L"姜清锋"
+	//2.用TEXT（）把字符包起来——TEXT（"姜清锋"）/_T这两种的原理都是前面加L
+	//3.进项目——属性——配置属性——常规——字符集——改为多字节字符集	
+
+	//建议使用第3种解决方案，会比较方便一些
+	
+
+	//——文字居中——	
+	fillrectangle(50, 300, 250, 400);//横坐标之差（宽）200，纵坐标之差（高）100
+
+	settextcolor(BLACK);
+	char arr[] = "姜清锋";
+	int width = 200/ 2 - textwidth(arr) / 2;
+	int height = 100 / 2 - textheight(arr) / 2;
+	outtextxy(width+50, height+300, arr);
+
+
+	//——输出图片——（更换框体背景）	
+	IMAGE img;//定义一个（变量）对象	
+	//加载图片
+	//相对路径  ./表示当前文件夹，../当前文件夹的上一级目录  ./oo.jpg	
+	//绝对路径 ：C:\Users\姜清锋\Desktop\easyx基础	
+	loadimage(&img, "./oo.jpg");
+	putimage(0, 0, &img);
+
+	//建议使用相对路径
+
+	getchar();//作用是防止直接关闭窗口，当在控制台输入后，按下回车才关闭框体。不然框体就只能一闪而过！！！
+
+	closegraph();//关闭框体窗口	
+
+	return 0;
+}
