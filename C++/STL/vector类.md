@@ -19,3 +19,54 @@ v1.insert(v1.bengin(),0);
 //运行结果:0,1,2,3
 v1.erase(v.bengin());
 //运行结果:1,2,3
+```
+    c++头文件中有algorithm库,里面包含了一些算法
+    其中有find()
+```c++
+vector<int>::iterator pos = find(v.begin(), v.end(), 5);
+//find的使用实例
+//其中的源码就是使用模版和迭代器查找指定的元素
+```
+### 只出现一次的数字
+    给定一个非空整数数组,除了某个数字出现一次以外,每个数字都出现两次,找出那个只出现一次的数字
+
+    思路: 使用按位异或求解
+    按位异或: 相同为0. 相异为1
+```c++
+clas Solution{
+public:
+    int singleNumber(vector<int>& nums)
+    {
+        int val = 0;
+        for(auto e : nums)
+        {
+            val ^= e;
+        }
+        return val;
+    }
+};
+```
+#### 进阶
+    数字都出现三次.只有一个出现一次.求出现一次的那个数字
+    思路: 统计出32个位, 每个位统计1出现的次数
+    每个位1的个数要么是3n, 要么是3n+1
+    3n+1的个位就是只出现一次的位
+```c++
+clas Solution{
+public:
+    int singleNumber(vector<int>& nums)
+    {
+        int bitArray[32] = {0};
+        for(auto e : nums)
+        {
+            for(size_t i = 0; i < 32; ++i)
+            {
+                if(e & (1 << i))
+                {
+                    ++bitArray[i];
+                }
+            }
+        }
+    }
+};
+```
