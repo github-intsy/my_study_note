@@ -137,3 +137,155 @@ getline(cin,s);
     ::swap();
     域作用限定符, 左边为空, 表示调用全局的
     在类的成员对象和成员方法前面都会默认加上this
+#### append()注意地方
+```c++
+void append(const char* str)
+{
+    size_t len = strlen(str);
+        if (len + _size >= _capacity)
+        {
+            char* newstr = new char[len + _size + 1];
+            strcpy(newstr, _str);
+            delete[] _str;
+            _str = newstr;
+            _capacity = len + _size;
+        }
+        strcpy(_str + _size, str);
+        _size += len;
+}
+以上代码报错,为什么?
+strcpy是不安全的, 它在拷贝字符串的时候会把字符串的地址一起拷过去,
+如果是new出来的空间,就会释放两次,导致程序崩溃
+
+下面的push_back()也会报错
+void push_back(const char& c)
+    {
+        if (_size == _capacity)
+        {
+            size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
+            char* tmp = new char[newcapacity + 1];
+            strcpy(tmp, _str);
+            delete[] _str;
+            _str = tmp;
+            _capacity = newcapacity;
+        }
+        _str[_size++] = c;
+    }
+```
+```c++
+改进后的代码
+void append(const char* str)
+    {
+        size_t len = strlen(str);
+        if (len + _size >= _capacity)
+        {
+            char* newstr = new char[len + _size + 1];
+            for (int i = 0; i <= _size; ++i)
+            {
+                newstr[i] = _str[i];
+            }
+            //不拷贝地址,直接拷贝值
+            delete[] _str;
+            _str = newstr;
+            _capacity = len + _size;
+        }
+        strcpy(_str + _size, str);
+        _size += len;
+    }
+```
+### 模拟实现string类代码
+#### push_back()
+```c++
+void push_back(const char& c)
+    {
+        if (_size == _capacity)
+        {
+            size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
+            reserve(newcapacity);
+        }
+        _str[_size++] = c;
+        _str[_size] = '\0';
+    }
+```
+#### reserve()
+```c++
+void reserve(size_t n)
+    {//开辟指定大小的空间
+        if (n > _capacity)
+        {
+            char* newstr = new char[n + 1];
+            for (int i = 0; i <= _size; ++i)
+            {
+                newstr[i] = _str[i];
+            }
+            delete[] _str;
+            _str = newstr;
+            _capacity = n;
+        }
+    }
+```
+#### append()
+```c++
+void append(const char* str)
+    {
+        size_t len = strlen(str);
+        if (len + _size >= _capacity)
+        {
+            reserve(len + _size);
+        }
+        strcpy(_str + _size, str);
+        _size += len;
+    }
+```
+#### 构造,析构函数
+```c++
+//构造函数
+string(const char* str = "")
+        :_str(new char[strlen(str) + 1])
+    {
+        strcpy(_str, str);
+        _capacity = _size = strlen(str);
+    }
+
+//析构函数
+~string()
+    {
+        delete[] _str;
+        _str = nullptr;
+        _capacity = _size = 0;
+    }
+```
+#### size()
+```c++
+size_t size()
+    {
+        return _size;
+    }
+```
+#### c_str()
+```c++
+const char* c_str() const
+    {
+        return _str;
+    }
+```
+#### operator[]
+```c++
+char& operator[](size_t i)
+    {
+        return _str[i];
+    }
+```
+#### 迭代器
+```c++
+typedef char* iterator;
+    iterator begin()
+    {
+        return _str;
+    }
+    
+    iterator end()
+    {
+        return _str + _size;
+    }
+```
