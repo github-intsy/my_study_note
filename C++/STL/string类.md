@@ -289,3 +289,105 @@ typedef char* iterator;
         return _str + _size;
     }
 ```
+#### insert(size_t pos, const char& ch)
+```c++
+void insert(size_t pos, const char& ch)
+    {
+        assert(pos <= _size);
+        if (_capacity == _size)
+        {
+            size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
+            reserve(newcapacity);
+        }
+        size_t end = _size + 1;
+        while (end > pos)//如果条件变为end>=pos,则多移动的数据会在下面被ch覆盖
+        {
+            _str[end] = _str[end - 1];
+            --end;
+        }
+        
+        _str[pos] = ch;
+        ++_size;
+    }
+```
+#### insert(size_t pos, const char* str)
+```c++
+void insert(size_t pos, const char* str)
+    {
+        size_t len = strlen(str);
+        if (_size + len > _capacity)
+        {
+            reserve(len + _size);
+        }
+        size_t end = _size + len;
+        //必须>=, 不然最后一个数据不能移动,会被覆盖
+        while (end >= len + pos)
+        {
+            _str[end] = _str[end - len];
+            --end;
+        }
+        size_t i = pos;
+        size_t j = 0;
+        //不能<=因为是以下标遍历的,不然就会多一个\0
+        while (j < len)
+        {
+            _str[i++] = str[j++];
+        }
+        _size += len;
+    }
+```
+#### erase()
+```c++
+void erase(size_t pos, size_t len)//删除指定位置的元素
+    {
+        assert(_size);
+        //在pos位置删除长度为len的字符串
+        //从前往后,依次向前挪动len个字符
+        // pos    pos+len
+        size_t end = pos + len;
+        size_t begin = pos;
+        while (end < _size)
+        {
+            _str[begin++] = _str[end++];
+        }
+        _size -= len;
+    }
+```
+#### operator重载比大小
+```c++
+    bool operator<(const string& s)
+    {
+        if (strcmp(_str, s._str) < 0)
+            return true;
+        else
+            return false;
+    }
+    
+    bool operator==(const string& s)
+    {
+        if (strcmp(_str, s._str) == 0)
+            return true;
+        else
+            return false;
+    }
+    
+    bool operator<=(const string& s)
+    {
+        return operator<(s) || operator==(s);
+    }
+
+    bool operator>(const string& s)
+    {
+        return !operator<=(s);
+    }
+    
+    bool operator>=(const string& s)
+    {
+        return !operator<(s);
+    }
+
+    bool operator!=(const string& s)
+    {
+        return !operator==(s);
+    }
+```
