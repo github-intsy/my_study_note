@@ -142,16 +142,16 @@ getline(cin,s);
 void append(const char* str)
 {
     size_t len = strlen(str);
-        if (len + _size >= _capacity)
-        {
-            char* newstr = new char[len + _size + 1];
-            strcpy(newstr, _str);
-            delete[] _str;
-            _str = newstr;
-            _capacity = len + _size;
-        }
-        strcpy(_str + _size, str);
-        _size += len;
+    if (len + _size >= _capacity)
+    {
+        char* newstr = new char[len + _size + 1];
+        strcpy(newstr, _str);
+        delete[] _str;
+        _str = newstr;
+        _capacity = len + _size;
+    }
+    strcpy(_str + _size, str);
+    _size += len;
 }
 以上代码报错,为什么?
 strcpy是不安全的, 它在拷贝字符串的时候会把字符串的地址一起拷过去,
@@ -159,235 +159,259 @@ strcpy是不安全的, 它在拷贝字符串的时候会把字符串的地址一
 
 下面的push_back()也会报错
 void push_back(const char& c)
+{
+    if (_size == _capacity)
     {
-        if (_size == _capacity)
-        {
-            size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
-            char* tmp = new char[newcapacity + 1];
-            strcpy(tmp, _str);
-            delete[] _str;
-            _str = tmp;
-            _capacity = newcapacity;
-        }
-        _str[_size++] = c;
+        size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
+        char* tmp = new char[newcapacity + 1];
+        strcpy(tmp, _str);
+        delete[] _str;
+        _str = tmp;
+        _capacity = newcapacity;
     }
+    _str[_size++] = c;
+}
 ```
 ```c++
 改进后的代码
 void append(const char* str)
+{
+    size_t len = strlen(str);
+    if (len + _size >= _capacity)
     {
-        size_t len = strlen(str);
-        if (len + _size >= _capacity)
+        char* newstr = new char[len + _size + 1];
+        for (int i = 0; i <= _size; ++i)
         {
-            char* newstr = new char[len + _size + 1];
-            for (int i = 0; i <= _size; ++i)
-            {
-                newstr[i] = _str[i];
-            }
-            //不拷贝地址,直接拷贝值
-            delete[] _str;
-            _str = newstr;
-            _capacity = len + _size;
+            newstr[i] = _str[i];
         }
-        strcpy(_str + _size, str);
-        _size += len;
+        //不拷贝地址,直接拷贝值
+        delete[] _str;
+        _str = newstr;
+        _capacity = len + _size;
     }
+    strcpy(_str + _size, str);
+    _size += len;
+}
 ```
 ### 模拟实现string类代码
 #### push_back()
 ```c++
 void push_back(const char& c)
+{
+    if (_size == _capacity)
     {
-        if (_size == _capacity)
-        {
-            size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
-            reserve(newcapacity);
-        }
-        _str[_size++] = c;
-        _str[_size] = '\0';
+        size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
+        reserve(newcapacity);
     }
+    _str[_size++] = c;
+    _str[_size] = '\0';
+}
 ```
 #### reserve()
 ```c++
 void reserve(size_t n)
-    {//开辟指定大小的空间
-        if (n > _capacity)
+{//开辟指定大小的空间
+    if (n > _capacity)
+    {
+        char* newstr = new char[n + 1];
+        for (int i = 0; i <= _size; ++i)
         {
-            char* newstr = new char[n + 1];
-            for (int i = 0; i <= _size; ++i)
-            {
-                newstr[i] = _str[i];
-            }
-            delete[] _str;
-            _str = newstr;
-            _capacity = n;
+            newstr[i] = _str[i];
         }
+        delete[] _str;
+        _str = newstr;
+        _capacity = n;
     }
+}
 ```
 #### append()
 ```c++
 void append(const char* str)
+{
+    size_t len = strlen(str);
+    if (len + _size >= _capacity)
     {
-        size_t len = strlen(str);
-        if (len + _size >= _capacity)
-        {
-            reserve(len + _size);
-        }
-        strcpy(_str + _size, str);
-        _size += len;
+        reserve(len + _size);
     }
+    strcpy(_str + _size, str);
+    _size += len;
+}
 ```
 #### 构造,析构函数
 ```c++
 //构造函数
 string(const char* str = "")
-        :_str(new char[strlen(str) + 1])
-    {
-        strcpy(_str, str);
-        _capacity = _size = strlen(str);
-    }
+    :_str(new char[strlen(str) + 1])
+{
+    strcpy(_str, str);
+    _capacity = _size = strlen(str);
+}
 
 //析构函数
 ~string()
-    {
-        delete[] _str;
-        _str = nullptr;
-        _capacity = _size = 0;
-    }
+{
+    delete[] _str;
+    _str = nullptr;
+    _capacity = _size = 0;
+}
 ```
 #### size()
 ```c++
 size_t size()
-    {
-        return _size;
-    }
+{
+    return _size;
+}
 ```
 #### c_str()
 ```c++
 const char* c_str() const
-    {
-        return _str;
-    }
+{
+    return _str;
+}
 ```
 #### operator[]
 ```c++
 char& operator[](size_t i)
-    {
-        return _str[i];
-    }
+{
+    return _str[i];
+}
 ```
 #### 迭代器
 ```c++
 typedef char* iterator;
-    iterator begin()
-    {
-        return _str;
-    }
-    
-    iterator end()
-    {
-        return _str + _size;
-    }
+iterator begin()
+{
+    return _str;
+}
+
+iterator end()
+{
+    return _str + _size;
+}
 ```
 #### insert(size_t pos, const char& ch)
 ```c++
 void insert(size_t pos, const char& ch)
+{
+    assert(pos <= _size);
+    if (_capacity == _size)
     {
-        assert(pos <= _size);
-        if (_capacity == _size)
-        {
-            size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
-            reserve(newcapacity);
-        }
-        size_t end = _size + 1;
-        while (end > pos)//如果条件变为end>=pos,则多移动的数据会在下面被ch覆盖
-        {
-            _str[end] = _str[end - 1];
-            --end;
-        }
-        
-        _str[pos] = ch;
-        ++_size;
+        size_t newcapacity = _capacity == 0 ? 4 : _capacity * 2;
+        reserve(newcapacity);
     }
+    size_t end = _size + 1;
+    while (end > pos)//如果条件变为end>=pos,则多移动的数据会在下面被ch覆盖
+    {
+        _str[end] = _str[end - 1];
+        --end;
+    }
+    
+    _str[pos] = ch;
+    ++_size;
+}
 ```
 #### insert(size_t pos, const char* str)
 ```c++
 void insert(size_t pos, const char* str)
+{
+    size_t len = strlen(str);
+    if (_size + len > _capacity)
     {
-        size_t len = strlen(str);
-        if (_size + len > _capacity)
-        {
-            reserve(len + _size);
-        }
-        size_t end = _size + len;
-        //必须>=, 不然最后一个数据不能移动,会被覆盖
-        while (end >= len + pos)
-        {
-            _str[end] = _str[end - len];
-            --end;
-        }
-        size_t i = pos;
-        size_t j = 0;
-        //不能<=因为是以下标遍历的,不然就会多一个\0
-        while (j < len)
-        {
-            _str[i++] = str[j++];
-        }
-        _size += len;
+        reserve(len + _size);
     }
+    size_t end = _size + len;
+    //必须>=, 不然最后一个数据不能移动,会被覆盖
+    while (end >= len + pos)
+    {
+        _str[end] = _str[end - len];
+        --end;
+    }
+    size_t i = pos;
+    size_t j = 0;
+    //不能<=因为是以下标遍历的,不然就会多一个\0
+    while (j < len)
+    {
+        _str[i++] = str[j++];
+    }
+    _size += len;
+}
 ```
 #### erase()
 ```c++
 void erase(size_t pos, size_t len)//删除指定位置的元素
+{
+    assert(_size);
+    //在pos位置删除长度为len的字符串
+    //从前往后,依次向前挪动len个字符
+    // pos    pos+len
+    size_t end = pos + len;
+    size_t begin = pos;
+    while (end < _size)
     {
-        assert(_size);
-        //在pos位置删除长度为len的字符串
-        //从前往后,依次向前挪动len个字符
-        // pos    pos+len
-        size_t end = pos + len;
-        size_t begin = pos;
-        while (end < _size)
-        {
-            _str[begin++] = _str[end++];
-        }
-        _size -= len;
+        _str[begin++] = _str[end++];
     }
+    _size -= len;
+}
 ```
 #### operator重载比大小
 ```c++
-    bool operator<(const string& s)
-    {
-        if (strcmp(_str, s._str) < 0)
-            return true;
-        else
-            return false;
-    }
-    
-    bool operator==(const string& s)
-    {
-        if (strcmp(_str, s._str) == 0)
-            return true;
-        else
-            return false;
-    }
-    
-    bool operator<=(const string& s)
-    {
-        return operator<(s) || operator==(s);
-    }
+bool operator<(const string& s)
+{
+    if (strcmp(_str, s._str) < 0)
+        return true;
+    else
+        return false;
+}
 
-    bool operator>(const string& s)
-    {
-        return !operator<=(s);
-    }
-    
-    bool operator>=(const string& s)
-    {
-        return !operator<(s);
-    }
+bool operator==(const string& s)
+{
+    if (strcmp(_str, s._str) == 0)
+        return true;
+    else
+        return false;
+}
 
-    bool operator!=(const string& s)
-    {
-        return !operator==(s);
-    }
+bool operator<=(const string& s)
+{
+    return operator<(s) || operator==(s);
+}
+
+bool operator>(const string& s)
+{
+    return !operator<=(s);
+}
+
+bool operator>=(const string& s)
+{
+    return !operator<(s);
+}
+
+bool operator!=(const string& s)
+{
+    return !operator==(s);
+}
+```
+#### 拷贝构造
+```c++
+传统写法
+string(const string& s)
+    :_str(new char[strlen(s._str) + 1])
+{
+    strcpy(_str, s._str);
+}
+```
+```c++
+现代写法
+string(const string& s)
+{
+    string tmp(s._str);
+    swap(tmp);
+}
+void swap(string& tmp)
+{
+    ::swap(_str, tmp._str);
+    ::swap(_capacity, tmp._capacity);
+    ::swap(_size, tmp._size);
+}
+::表示引用域外的swap函数
 ```
