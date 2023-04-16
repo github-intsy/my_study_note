@@ -70,3 +70,25 @@ public:
     }
 };
 ```
+### 模拟实现vector类
+#### reserve(const size_t& n)
+```c++
+void reserve(const size_t& n)
+{
+    if (n > capacity())
+    {
+        T* tmp = new T[n];
+        if (_start)
+        {
+            memcpy(tmp, _start, sizeof(T) * size());
+            delete[] _start;
+        }
+        _end_of_storage = tmp + capacity();
+        _finish = tmp + size();
+        _start = tmp;
+        //最后三行的顺序不可以改变,
+        //因为size和capapcity都是通过同一组元素的地址相减得到的数据大小
+        //如果改变,则指针位置不同,不可得到正确值,会乱码
+    }
+}
+```
