@@ -1,42 +1,42 @@
 static能修饰成员变量,使得其创建的时候只会创建一个
 #####
 ```c++
-    class A
+class A
+{
+public:
+    A()
     {
-    public:
-        A()
-        {
-            ++n;
-        }
-        A(const A& a)
-        {
-            ++n;
-        }
-        static int Getn()//没有this指针,函数中不能访问非静态的成员
-        {
-            return n;
-        }
-    private:
-        static int n;   //声明,不是属于某个对象,是属于类的所有对象,属于这个类
-        //n不在对象中,n在静态区
-        int _a;
+        ++n;
     }
-
-    int A::n = 0;   //定义
-
-    A f1(A a)
+    A(const A& a)
     {
-        return a;
+        ++n;
     }
-
-    int main()
+    static int Getn()//没有this指针,函数中不能访问非静态的成员
     {
-        A a1;
-        A a2;
-        f1(a1);
-        f1(a2);
-        return 0;
+        return n;
     }
+private:
+    static int n;   //声明,不是属于某个对象,是属于类的所有对象,属于这个类
+    //n不在对象中,n在静态区
+    int _a;
+}
+
+int A::n = 0;   //定义
+
+A f1(A a)
+{
+    return a;
+}
+
+int main()
+{
+    A a1;
+    A a2;
+    f1(a1);
+    f1(a2);
+    return 0;
+}
 ```
     如果成员对象或者成员函数是static的,则可以使用A::n 的方法调用
 
@@ -47,7 +47,9 @@ static能修饰成员变量,使得其创建的时候只会创建一个
 1. 静态成员函数可以调用非静态成员函数吗?
 ->不行,静态成员函数没有this指针
 
-2. 非静态成员函数可以调用类的成员函数吗>
+2. 非静态成员函数可以调用类的成员函数吗?
 ->可以
+
 突破类域+访问限定符就可以访问
+
 类里面是一个整体都在这个类里面,类里面不受访问限定符限制.
