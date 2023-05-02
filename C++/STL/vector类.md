@@ -27,6 +27,17 @@ vector<int>::iterator pos = find(v.begin(), v.end(), 5);
 //find的使用实例
 //其中的源码就是使用模版和迭代器查找指定的元素
 ```
+### void resize (size_type n, value_type val = value_type());
+```c++
+void resize (size_type n, value_type val = value_type());
+两种用法:
+1. resize(10);
+//直接开辟所需大小的空间,如果大于已存在空间的大小,就开辟到10个,并且开辟出来的空间会根据类型自动初始化
+2. resize(10,0);
+//直接开辟指定大小,并且将指定数据赋值到开辟的空间
+
+//以上两种情况下,如果10小于存在的空间,就删除部分空间到指定大小
+```
 ### 只出现一次的数字
     给定一个非空整数数组,除了某个数字出现一次以外,每个数字都出现两次,找出那个只出现一次的数字
 
