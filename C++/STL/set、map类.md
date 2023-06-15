@@ -35,7 +35,7 @@ string strs[] = {"西瓜","樱桃","西瓜","苹果","西瓜","西瓜","西瓜",
 map<string, int> countMap;
 for(auto& str : strs)   //使用pair对象
 {
-    pair<map<string, int>::iterator, bool> ret = countMap.insert(mack_pair(str, 1));
+    pair<map<string, int>::iterator, bool> ret = countMap.insert(make_pair(str, 1));
     if(ret.second == false)
     {
         ret.first->second++;
@@ -79,6 +79,20 @@ for(auto& e: countMap)
 2. 修改
 
 一般不会用他去做查找, 因为如果key不在会插入数据
+#### map的operator[]的模拟实现
+```c++
+V& operator[](const K& k)
+{
+	pair<iterator,bool> it = _rb.insert(make_pair(k,V()));
+	return it.first->second;
+}
+```
+	我们不关心插入失败的bool值,只用返回对应节点的迭代器即可.
+	上面的接收迭代器的bool值判断是直接使用map的insert进行返回
+
+	1. 插入节点不存在,插入成功
+   		则调用V类型的默认构造函数,并创建一个新的节点, 返回iterator和true
+	2. 插入节点存在.插入失败, 返回iterator和false
 ### map
 1. 增   insert + operator[]
 2. 删   erase
@@ -404,3 +418,138 @@ typedef template RBTree<K,K,SetKeyOfT>::iterator iterator;
 1. 如果右不为空，中序的下一个就是右子树的最左节点
 2. 如果右为空，表示_node所在的子树已经放完成,在一个节点在他的祖先中找
 3. 如果右为空,就判断当前节点是父节点的左节点还是右节点,如果是右节点,就找到它是祖先左边的那个节点.然后再传递到右子树中找到右子树最左边的那个节点.
+
+### map::iterator
+```c++
+template<class K, class V>
+class map
+{
+	struct MapKOfV
+	{
+		const K& operator()(const pair<K,V>& p)
+		{
+			return p.first;
+		}
+	};
+public:
+
+	typedef typename RBTree<K,pair<K,V>,MapKOfV>::Iterator iterator;
+
+	iterator begin()
+	{
+		return _rb.begin();
+	}
+
+	iterator end()
+	{
+		return _rb.end();
+	}
+
+	bool Insert(const pair<K,V>& t)
+	{
+		return _rb.insert(t);
+	}
+	
+	void show()
+	{
+		_rb.show();
+	}
+
+private:
+	RBTree<K, pair<K, V>, MapKOfV> _rb;
+};
+```
+### iterator
+```c++
+template<class T, class Ref, class Ptr>
+struct __iterator
+{
+	typedef RBTreeNode<T> Node;
+	typedef __iterator<T, Ref, Ptr> self;
+	Node* _node;
+	Ref operator*()
+	{
+		return _node->_data;
+	}
+
+	Ptr operator->()
+	{
+		return &_node->_data;
+	}
+
+	__iterator(Node* node)
+		:_node(node)
+	{}
+
+	self& operator++()
+	{
+		//1. 右节点不为空, 获得右节点最左边的那个节点
+		//2. 右节点为空, 判断到它为父节点左子树的那个父节点,然后再迭代到最左边的那个节点
+		if (_node->_right)
+		{
+			_node = _node->_right;
+			while (_node && _node->_left)
+			{
+				_node = _node->_left;
+			}
+		}
+		else
+		{
+			Node* parent = _node->_parent;
+			Node* cur = _node;
+			while (parent && cur == parent->_right)
+			{
+				cur = parent;
+				parent = parent->_parent;
+			}
+			_node = parent;
+		}
+		return *this;
+	}
+
+	bool operator!=(const self& node)
+	{
+		return _node != node._node;
+	}
+
+	bool operator==(const self& node)
+	{
+		return _node == node._node;
+	}
+};
+```
+### RBTree
+```c++
+template<class K, class T, class KofT>
+class RBTree
+{
+	typedef RBTreeNode<T> Node;
+public:
+	typedef __iterator<T, T&, T*> Iterator;
+	typedef __iterator<T, const T&, const T*> const_Iterator;
+
+	RBTree(Node* n = nullptr)
+		:_root(n)
+	{}
+
+	Iterator begin()
+	{
+		Node* cur = _root;
+		while (cur && cur->_left)
+		{
+			cur = cur->_left;
+		}
+		return Iterator(cur);
+	}
+
+	Iterator end()
+	{
+		return Iterator(nullptr);
+	}
+}
+```
+	在iterator中封装Node的指针, 在iterator中重写->等操作.
+	在RBTree里面写出begin和end函数,返回一个iterator对象, 并将iterator封装起来
+	在map中传参封装成map的专属迭代器,再用RBTree的begin和end来写map的函数
+
+	最后可以直接正常使用map的迭代器
