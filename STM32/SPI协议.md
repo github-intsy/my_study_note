@@ -70,3 +70,58 @@ flash存储器只能将0变为1,不能将1变为0\
 
 ---
 ### 硬件SPI外设
+#### 步骤(SPI_Init)
+1. 开启时钟,开启SPI和GPIO的时钟
+2. 初始化GPIO口
+   1. SCK、MOSI是由硬件外设控制的输出信号
+   2. 所以配置为复用推完输出
+   3. MISO是硬件外设的输入信号
+   4. 配置为上拉输入
+   5. 因为输入设备可以有多个
+   6. 所以不存在复用输入
+   7. 普通GPIO口可以输入,外设也可以输入
+   8. SS是软件配置输出信号,所以配置为通用推挽输出
+3. 配置SPI外设
+4. 开关控制SPI_Cmd使能
+
+#### 主要函数
+|函数名|作用|
+|---|---|
+|SPI_I2S_SendData|写DR数据寄存器|
+|SPI_I2S_ReceiveData|写DR数据寄存器|
+
+#### 初始化函数细节
+1. 开启SPI1时钟
+   1. SPI1是APB2的外设
+2. SS从机选择引脚是PA4,使用软件模拟
+   1. 选择通用推挽输出
+3. 配置SCK和MOSI,外设控制的输出
+   1. 配置为复用推挽输出
+   2. SCK-PA5
+   3. MOSI-PA7
+4. 配置MISO
+   1. 配置成上拉输入模式
+   2. MISO-PA6
+5. 初始化SPI外设SPI_Init
+   1. `SPI_Mode`选择SPI模式,决定当前设备是SPI的主机还是从机`SPI_Mode_Master`
+   2. `SPI_Direction`选择双位全双工`SPI_Direction_2Lines_FullDuplex`
+   3. `SPI_DataSize`配置8位还是16位数据帧
+      1. 配置8位先行`SPI_DataSize_8b`
+   4. `SPI_FirstBit`配置高位先行还是低位先行
+      1. 高位先行`SPI_FirstBit_MSB`
+   5. `SPI_BaudRatePrescaler`配置波特率的时钟频率
+   6. `SPI_CPOL`配置SPI模式`SPI_CPOL_Low`
+   7. `SPI_CPHA`配置SPI模式`SPI_CPHA_1Edge`第一个边沿开始采样`6,7组成模式0`
+   8. `SPI_NSS`配置NSS模式,这里使用软件模拟
+   9.  `SPI_CRCPolynomial`CRC校验的多项式,随便填一个数即可
+6.  SPI_Cmd使能
+7.  MySPI_W_SS函数,默认给SS输出高电平,默认不选择从机
+
+#### 交换字节函数
+1. 等待TXE为1,发送寄存器为空,如果寄存器不为空,就不着急写,`SPI_I2S_GetFlagStatus`,判断为`SPI_I2S_FLAG_TXE` != set
+2. 软件写入数据至SPI_DR`SPI_I2S_SendData`,将要传输的数据传输给TDR
+3. 接收移位完成时,会置标志位RXNE,所以只需要等待RXNE出现即可`SPI_I2S_GetFlagStatus`,选择`SPI_I2S_FLAG_RXNE` != set即可
+4. 读取DR,从RDR里,把交换到的数据移动出来`SPI_I2S_ReceiveData`
+
+注意: 硬件SPI必须发送的同时接收,如果不发送只接受数据,时序不会变化\
+TXE和RXNE不需要手动清除,等待TXE标志位为1后,写DR,自动清除,等待RXNE标志位为1后,读TDR,自动清除
