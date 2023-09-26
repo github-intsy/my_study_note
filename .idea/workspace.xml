@@ -2,8 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="03b572af-3ed0-4a97-be6a-66fb34b636d1" name="默认变更列表" comment="">
-      <change beforePath="$PROJECT_DIR$/linux/全部命令.md" beforeDir="false" afterPath="$PROJECT_DIR$/linux/全部命令.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/linux/实操篇/文件目录类.md" beforeDir="false" afterPath="$PROJECT_DIR$/linux/实操篇/文件目录类.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/算法/DP/背包问题.md" beforeDir="false" afterPath="$PROJECT_DIR$/算法/DP/背包问题.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,6 +31,7 @@
       <option name="presentableId" value="Default" />
       <updated>1695313457808</updated>
       <workItem from="1695313460271" duration="2000" />
+      <workItem from="1695732616014" duration="2000" />
     </task>
     <servers />
   </component>
