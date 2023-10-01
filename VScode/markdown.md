@@ -30,3 +30,6 @@ printf("hello world");
    3. 输入两个`空格`,然后`回车`
       1. 比如  
          这样
+9. 表格内换行
+   1.  <br>显示内容</br>显示`markdown语言可以支持部分的html语言, <br>和</br>都可以单独换一行`
+   2.  &nbsp;&nbsp;&nbsp;&nbsp;空两行
