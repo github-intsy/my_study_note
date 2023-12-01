@@ -1,0 +1,39 @@
+{
+    "created_time": "2023-12-01T09:20:17Z",
+    "files": [
+        {
+            "attachment_folder": "",
+            "created_time": "2023-12-01T09:20:17Z",
+            "id": "471",
+            "modified_time": "2023-12-01T09:20:17Z",
+            "name": "学习方法.md",
+            "signature": "38699356759377",
+            "tags": [
+            ]
+        }
+    ],
+    "folders": [
+        {
+            "name": "1 每日背诵"
+        },
+        {
+            "name": "DP"
+        },
+        {
+            "name": "基础算法"
+        },
+        {
+            "name": "搜索和图论"
+        },
+        {
+            "name": "数学知识"
+        },
+        {
+            "name": "数据结构"
+        }
+    ],
+    "id": "453",
+    "modified_time": "2023-12-01T09:20:17Z",
+    "signature": "114144752280913",
+    "version": 3
+}

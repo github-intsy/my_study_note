@@ -33,3 +33,16 @@ printf("hello world");
 9. 表格内换行
    1.  <br>显示内容</br>显示`markdown语言可以支持部分的html语言, <br>和</br>都可以单独换一行`
    2.  &nbsp;&nbsp;&nbsp;&nbsp;空两行
+10. 标记
+    1.  <mark>标记</mark>
+11. 数学公式
+    1.  $f[j] = max(f[j], f[j-v[i]]+w[i])$
+    2.  数学块
+    3.  $$ p[i] = p[i-1]*P$$
+12. 删除线
+    1.  ~~删除线~~
+13. 引用块
+    1.  > 引用块
+
+# 数学公式使用详解
+https://blog.csdn.net/wzk4869/article/details/126863936
