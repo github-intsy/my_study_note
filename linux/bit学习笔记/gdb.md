@@ -1,3 +1,9 @@
+<details><summary>目录</summary>
+
+- [gdb作用](#gdb作用)
+
+
+</details>
 
 ## gdb作用
 - 能在linux下使用指令对程序进行调试
