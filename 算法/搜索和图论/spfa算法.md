@@ -17,6 +17,7 @@ int spfa()
 		for (int i = h[t]; i != -1; i = ne[i])
 		{
 			int j = e[i];//迭代
+			//判断只有更新的节点才通过队列来管理
 			if (dist[j] > dist[t] + w[i])
 			{
 				dist[j] = dist[t] + w[i];//变小
