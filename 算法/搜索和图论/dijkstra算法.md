@@ -28,7 +28,7 @@ int dijkstra()
 		int t = -1;
 		//查找当前点连通的最短路
 		for (int j = 1; j <= n; ++j)
-			if (!st[j] && (t == -1 || st[t] > st[j]))
+			if (!st[j] && (t == -1 || dist[t] > dist[j]))
 				t = j;
 
 		st[t] = true;//存储当前最短路
