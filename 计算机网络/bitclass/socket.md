@@ -174,3 +174,45 @@ if(cmd.find("rm) != string::npos) return;
 //等于结尾, 说明没找到, 不执行
 ```
 文件描述符可以被子进程继承
+
+## TCP
+### server端
+>tcp是一个注重连接的通信协议, 所以在发送数据前需要建立连接, 建立连接的前提是该进程处于监听状态
+>1. 创建socket对象
+>2. 绑定bind, 发送给OS
+>3. 设置为监听状态
+>4. server 获取新链接
+```c++
+socket(AF_INET, SOCK_STREAM, 0);
+//AF_INET:使用IPv4
+//SOCK_STREAM:使用TCP字节流
+//AF_INET其实就是PF_INET, 两者相等
+```
+```c++
+#include <sys/socket.h>
+
+int listen(int socket, int backlog);
+```
+```c++
+#include <sys/socket.h>
+
+int accept(int socket, struct sockaddr *restrict address,
+        socklen_t *restrict address_len);
+//socket是酒馆拉客的人, 用于从底层获取新链接处理
+//返回值是一个socket, 用于向外部提供服务, 所以返回值才是应该执行业务的
+//如果返回失败, 表示拉客失败, 并不影响后续拉客. 所以continue
+```
+>面对字节流通信的tcp, 可以使用read进行读取数据, 如果read返回0, 表示client退出\
+对于一个已经使用完成的socket, 我们要关闭这个socket, 要不然导致文件描述符泄露
+### client端
+```c++
+#include <sys/types.h>          /* See NOTES */
+#include <sys/socket.h>
+
+int connect(int sockfd, const struct sockaddr *addr,
+            socklen_t addrlen);
+//返回0, 建立连接成功
+//不等于0, 建立失败
+```
+对于TCP, 可以使用文件操作处理数据, 所以可以使用write将数据发送给socket文件
+- 客户端需要将文件关闭`close`
