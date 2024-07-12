@@ -66,3 +66,7 @@ to可以省略
 ### 删除属性
 `alter table table_name drop 列名`\
 如果删除，曾经的属性全部消失
+
+## 修改表项内容
+`update table_name set name='张三' where id=101`\
+将`id`值为**101**的表项中`name`值修改为**张三**
