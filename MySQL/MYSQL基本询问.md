@@ -1,23 +1,29 @@
 <details><summary>目录</summary>
 
 - [create](#create)
-  - [单行插入+全列插入](#单行插入全列插入)
-  - [多行插入](#多行插入)
-  - [插入否则更新](#插入否则更新)
-  - [替换](#替换)
+	- [单行插入+全列插入](#单行插入全列插入)
+	- [多行插入](#多行插入)
+	- [插入否则更新](#插入否则更新)
+	- [替换](#替换)
 - [Retrieve](#retrieve)
-  - [全列查询](#全列查询)
-  - [指定列顺序查询](#指定列顺序查询)
-  - [结果去重](#结果去重)
+	- [全列查询](#全列查询)
+	- [指定列顺序查询](#指定列顺序查询)
+	- [结果去重](#结果去重)
 - [where语句](#where语句)
-  - [判断](#判断)
-  - [逻辑运算符](#逻辑运算符)
+	- [判断](#判断)
+	- [逻辑运算符](#逻辑运算符)
 - [结果排序](#结果排序)
 - [update修改数据](#update修改数据)
 - [delete删除数据](#delete删除数据)
-  - [截断表](#截断表)
-  - [三种日志文件](#三种日志文件)
+	- [截断表](#截断表)
+	- [三种日志文件](#三种日志文件)
 - [去重表数据](#去重表数据)
+- [聚合函数](#聚合函数)
+	- [统计班上有多少同学](#统计班上有多少同学)
+	- [获取总分](#获取总分)
+	- [注意](#注意)
+- [分组聚合统计](#分组聚合统计)
+	- [having](#having)
 
 
 </details>
@@ -234,3 +240,87 @@ rename table table_name1 to old_table_name, table_name2 to table_name1;
 ```
 为什么最后通过rename的方式进行？\
 因为去重的目标数据表中有可能有文件正在被访问，先重命名等到一切就绪了，然后统一放入、更新、生效等。
+
+## 聚合函数
+>聚合结果只能单独显示，不能使用select做拼装显示
+
+|函数|说明|
+|---|---|
+|count([distinct] expr)|返回查询到的数据的 数量|
+|sum([distinct] expr)|返回查询到的数据的 总和，不是数字没有意义|
+|avg([distinct] expr)|返回查询到的数据的 平均数，不是数字没有意义|
+|max([distinct] expr)|返回查询到的数据的 最大值，不是数字没有意义|
+|min([distinct] expr)|返回查询到的数据的 最小值，不是数字没有意义|
+
+### 统计班上有多少同学
+```sql
+select count(*) from student;
+
+select count(math) from student;
+-- 统计考试数学成绩个数
+
+select count(1) from student;
+
+select count(distinct math) from student;
+-- 统计数学成绩不重复的个数
+
+select count(*) from student where english<60;
+-- 统计英语不及格的人数
+
+```
+### 获取总分
+```sql
+select sum(math) from student;
+-- 获取数学总分
+
+select sum(math)/count(*) from student;
+select avg(math) from student;
+-- 获取数学平均分
+
+select sum(english) from student where english<60;
+-- 所有英语不及格的英语成绩的总和
+```
+
+### 注意
+>如下操作报错
+```sql
+select name,max(math) from student;
+```
+> 因为聚合操作是select将数据拿到后，才对数据做聚合操作。这样写会同时将name也做聚合操作，但是聚合操作只能对数字类型做操作，所以报错
+
+## 分组聚合统计
+>分组聚合统计是为了：方便将数据在逻辑上按照每组进行聚合统计\
+例如，将班上男生和女生分别划分两组，获取男生和女生的平均分
+```sql
+select class_id,max(id) 最高 from student group by class_id;
+```
+> 指定列名，实际分组，是用该列的不同的行数据来进行分组的\
+> 分组的条件`class_id`，同一个组内一定是相同的，表示可以被**聚合压缩**\
+> 分组，不就是把一个大的分组，在逻辑上按照条件，划分成多个子表进行聚合统计。
+---
+```sql
+-- 显示每个部门的每种岗位的平均工资和最低工资
+select deptno,job,avg(sal) 平均,min(sal) 最低
+	from emp group by deptno,job;
+-- 只有在group by后面出现的元素，才能在select后面出现
+```
+>- 不能显示name属性，因为分组是按照限定元素进行划分的相同属性，聚合压缩只能压缩相同的元素，name是每个人都不一样的，所以不能显示name
+>- 聚合压缩是将相同元素划分到一组，以组的形式显示，只有同一组的元素才能压缩。所以name不行
+
+### having
+having是对聚合后的统计数据，条件筛选
+```sql
+select deptno,job,avg(sal) myavg
+	from emp where name != 'SMITH'
+		group by deptno,job having myavg <2000;
+-- 1. from emp
+-- 2. where ename != 'SMITH' //对具体的任意列进行条件筛选
+-- 3. group by deptno,job
+-- 4. deptno,job,avg(sal) myavg
+-- 5. having //对分组聚合之后的结果进行条件筛选
+```
+having和where的区别？\
+条件筛选的阶段是不同的
+
+不要单纯的认为，只有磁盘上的表结构导入到mysql，真是存在的表，才叫做表。\
+中间筛选出来的，包括最终结果，在我看来，全部都是逻辑上的表。
